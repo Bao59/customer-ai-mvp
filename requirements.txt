@@ -1,3 +1,7 @@
-transformers
-torch
-sentencepiece
+streamlit==1.40.2
+transformers==4.44.2
+torch==2.5.1
+torchvision==0.20.1
+sentencepiece==0.2.0
+protobuf==4.25.5
+accelerate==0.34.2
