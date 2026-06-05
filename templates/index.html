@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI 智慧客服助理 MVP</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="workspace" aria-label="AI 智慧客服助理工作區">
+        <aside class="sidebar">
+          <div class="brand">
+            <div class="brand-mark" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <div>
+              <p class="eyebrow">Transformers Pipeline MVP</p>
+              <h1>AI 智慧客服助理</h1>
+            </div>
+          </div>
+
+          <div class="metric-grid">
+            <div class="metric">
+              <span class="metric-label">Pipeline</span>
+              <strong>5</strong>
+            </div>
+            <div class="metric">
+              <span class="metric-label">處理時間</span>
+              <strong id="processingTime">-</strong>
+            </div>
+          </div>
+
+          <nav class="pipeline-list" aria-label="Pipeline 步驟">
+            <button class="pipeline-step is-active" data-step="intent">
+              <span class="step-index">01</span>
+              <span>
+                <strong>意圖分類</strong>
+                <small>zero-shot-classification</small>
+              </span>
+            </button>
+            <button class="pipeline-step" data-step="sentiment">
+              <span class="step-index">02</span>
+              <span>
+                <strong>情緒分析</strong>
+                <small>sentiment-analysis</small>
+              </span>
+            </button>
+            <button class="pipeline-step" data-step="entities">
+              <span class="step-index">03</span>
+              <span>
+                <strong>實體抽取</strong>
+                <small>token-classification</small>
+              </span>
+            </button>
+            <button class="pipeline-step" data-step="summary">
+              <span class="step-index">04</span>
+              <span>
+                <strong>重點摘要</strong>
+                <small>summarization</small>
+              </span>
+            </button>
+            <button class="pipeline-step" data-step="reply">
+              <span class="step-index">05</span>
+              <span>
+                <strong>回覆生成</strong>
+                <small>template / text-generation</small>
+              </span>
+            </button>
+          </nav>
+        </aside>
+
+        <section class="main-panel">
+          <header class="topbar">
+            <div>
+              <p class="eyebrow">Customer Support Automation</p>
+              <h2>單封客服信件進站分析</h2>
+            </div>
+            <div class="status-pill">
+              <span class="pulse"></span>
+              Ready
+            </div>
+          </header>
+
+          <section class="input-area" aria-label="客服信件輸入">
+            <div class="toolbar">
+              <div class="segmented" role="tablist" aria-label="範例信件">
+                <button class="segment is-selected" data-sample="refund" role="tab" aria-selected="true">退貨</button>
+                <button class="segment" data-sample="delivery" role="tab" aria-selected="false">配送</button>
+                <button class="segment" data-sample="billing" role="tab" aria-selected="false">帳務</button>
+              </div>
+              <button class="icon-button" id="copyReply" title="複製回覆草稿" aria-label="複製回覆草稿">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="9" y="9" width="10" height="10" rx="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v1"></path>
+                </svg>
+              </button>
+            </div>
+
+            <textarea id="messageInput" spellcheck="false"></textarea>
+
+            <div class="action-row">
+              <button class="primary-action" id="runPipeline">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                執行分析
+              </button>
+              <span id="copyState" class="copy-state" aria-live="polite"></span>
+            </div>
+          </section>
+
+          <section class="dashboard-grid" aria-label="分析結果">
+            <article class="result-card result-highlight" id="intentCard">
+              <div class="card-heading">
+                <span>意圖分類</span>
+                <small>Zero-shot</small>
+              </div>
+              <strong id="intentLabel">尚未分析</strong>
+              <div class="confidence-bar" aria-label="分類信心分數">
+                <span id="intentBar"></span>
+              </div>
+              <p id="intentReason">請輸入客服信件並執行分析。</p>
+            </article>
+
+            <article class="result-card" id="sentimentCard">
+              <div class="card-heading">
+                <span>情緒狀態</span>
+                <small>Sentiment</small>
+              </div>
+              <strong id="sentimentLabel">-</strong>
+              <p id="sentimentReason">尚無情緒分析結果。</p>
+            </article>
+
+            <article class="result-card" id="priorityCard">
+              <div class="card-heading">
+                <span>處理優先級</span>
+                <small>Routing</small>
+              </div>
+              <strong id="priorityLabel">-</strong>
+              <p id="priorityReason">尚未判斷處理優先級。</p>
+            </article>
+          </section>
+
+          <section class="detail-grid">
+            <article class="panel">
+              <div class="panel-title">
+                <h3>抽取實體</h3>
+                <span>NER + Regex</span>
+              </div>
+              <div id="entityList" class="entity-list"></div>
+            </article>
+
+            <article class="panel">
+              <div class="panel-title">
+                <h3>信件摘要</h3>
+                <span>Summarization</span>
+              </div>
+              <p id="summaryText" class="summary-text">尚無摘要。</p>
+            </article>
+
+            <article class="panel reply-panel">
+              <div class="panel-title">
+                <h3>回覆草稿</h3>
+                <span>Reply Generation</span>
+              </div>
+              <div id="replyText" class="reply-text">尚無回覆草稿。</div>
+            </article>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>
